@@ -1,17 +1,32 @@
 <script setup lang="ts">
-import HelloWorld from './components/HelloWorld.vue'
+import { Cartesian3, createOsmBuildingsAsync,  Math as CesiumMath, Terrain, Viewer } from 'cesium';
+import {onMounted} from "vue";
+
+onMounted(async() => {
+  // Initialize the Cesium Viewer in the HTML element with the `cesiumContainer` ID.
+  const viewer = new Viewer('cesiumContainer', {
+    terrain: Terrain.fromWorldTerrain(),
+  });
+
+// Fly the camera to San Francisco at the given longitude, latitude, and height.
+  viewer.camera.flyTo({
+    destination: Cartesian3.fromDegrees(-122.4175, 37.655, 400),
+    orientation: {
+      heading: CesiumMath.toRadians(0.0),
+      pitch: CesiumMath.toRadians(-15.0),
+    }
+  });
+  // Add Cesium OSM Buildings, a global 3D buildings layer.
+  const buildingTileset = await createOsmBuildingsAsync();
+  viewer.scene.primitives.add(buildingTileset);
+})
+
+
+
 </script>
 
 <template>
-  <div>
-    <a href="https://vite.dev" target="_blank">
-      <img src="/vite.svg" class="logo" alt="Vite logo" />
-    </a>
-    <a href="https://vuejs.org/" target="_blank">
-      <img src="./assets/vue.svg" class="logo vue" alt="Vue logo" />
-    </a>
-  </div>
-  <HelloWorld msg="Vite + Vue" />
+  <div id="cesiumContainer"></div>
 </template>
 
 <style scoped>
